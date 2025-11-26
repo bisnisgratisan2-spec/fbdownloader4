@@ -1,0 +1,40 @@
+```html
+const urlInput = document.getElementById('url');
+
+
+clear.onclick = ()=>{ urlInput.value=''; result.style.display='none'; result.innerHTML=''; }
+
+
+go.onclick = async ()=>{
+const url = urlInput.value.trim();
+if(!url){ alert('Masukkan URL terlebih dahulu'); return; }
+result.style.display='block';
+result.innerHTML = 'Memproses...';
+try{
+const resp = await fetch('/api/get-video', {
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body: JSON.stringify({ url })
+});
+const j = await resp.json();
+if(resp.ok){
+let html = '';
+if(j.hd) html += `<a class="link" href="${j.hd}" target="_blank" rel="noopener">Download HD</a>`;
+if(j.sd) html += `<a class="link" href="${j.sd}" target="_blank" rel="noopener">Download SD</a>`;
+if(!html) html = '<div>Tidak ditemukan URL video (mungkin private).</div>';
+result.innerHTML = html;
+} else {
+result.innerHTML = `<div style="color:#c026d3">Error: ${j.error || 'Unknown'}</div>`;
+}
+}catch(e){
+result.innerHTML = `<div style="color:#ef4444">Terjadi error: ${e.message}</div>`;
+}
+}
+
+
+// allow enter key
+urlInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') go.click(); });
+</script>
+</body>
+</html>
+```
